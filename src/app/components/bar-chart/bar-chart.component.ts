@@ -1,4 +1,4 @@
-import { Component, ElementRef, OnInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import * as d3 from 'd3';
 import { DataService } from '../../../assets/data-service';
 
@@ -15,26 +15,33 @@ export class BarChartComponent implements OnInit {
   maxNumber: number = 0;
   chartdata: any;
   svg: any;
-  defenseMilitaryData: any;
   tooltip: any;
   // Margin convention
   margin = { top: 50, right: 50, bottom: 70, left: 150 };
   width = 700 - this.margin.left - this.margin.right;
   height = 500 - this.margin.top - this.margin.bottom;
+
   ngOnInit(): void {
+    this.createTooltip();
     this.createSvg();
 
-    // Tooltip
-    this.tooltip = d3
-      .select('figure#bar')
-      .append('div')
-      .attr('class', 'tooltip')
-      .style('opacity', 0);
     this.dataService
       .getData('./assets/Data/us-spending-since-2000-v3.json')
       .subscribe((data: any) => {
         this.ready(data);
       });
+  }
+
+  createTooltip() {
+    this.tooltip = d3
+      .select('body')
+      .append('div')
+      .style('position', 'absolute')
+      .style('z-index', '10')
+      .style('visibility', 'hidden')
+      .style('background', '#dbd8e3')
+      .style('padding', '10px')
+      .style('border-radius', '8px');
   }
   ready(data: any) {
     this.chartdata = this.rollupData(data);
@@ -80,7 +87,7 @@ export class BarChartComponent implements OnInit {
       this.maxNumber = +num;
     }
   }
-  private drawBars(data: any[]): void {
+  drawBars(data: any[]): void {
     const years = ['2018', '2019', '2020', '2021', '2022'];
 
     // Create color scale for departments
@@ -109,44 +116,47 @@ export class BarChartComponent implements OnInit {
       .range([this.height / 2, 0]);
 
     // Draw Y-axis
-    this.svg.append('g').call(d3.axisLeft(y));
+    this.svg.append('g').call(d3.axisLeft(y).tickFormat(d3.format('$,.0f')));
 
     // Create and fill the bars for each year
-    years.forEach(
-      (year, index) => {
-        const k: any = x(year);
-        this.svg
-          .selectAll('bars')
-          .data(data)
-          .enter()
-          .append('rect')
-          .attr('x', (d: any, i: any) => k + (x.bandwidth() * i) / years.length)
-          .attr('y', (d: any) => y(d[year]))
-          .attr('width', x.bandwidth() / years.length)
-          .attr('height', (d: any) => this.height / 2 - y(d[year]))
-          .attr('fill', (d: any) =>
-            d && d.Department && color(d.Department)
-              ? color(d.Department)
-              : '#d04a35'
+    years.forEach((year, index) => {
+      const k: any = x(year);
+      this.svg
+        .selectAll('bars')
+        .data(data)
+        .enter()
+        .append('rect')
+        .attr('x', (d: any, i: any) => k + (x.bandwidth() * i) / years.length)
+        .attr('y', (d: any) => y(d[year]))
+        .attr('width', x.bandwidth() / years.length)
+        .attr('height', (d: any) => this.height / 2 - y(d[year]))
+        .attr('fill', (d: any) =>
+          d && d.Department && color(d.Department)
+            ? color(d.Department)
+            : '#d04a35'
+        )
+        .on('mouseover', (event: any, d: any) => {
+          this.tooltip.style('visibility', 'visible');
+          this.tooltip.html(
+            'Year:' +
+              year +
+              '<br>' +
+              d.Department +
+              '<br>' +
+              d3.format('($,')(d[year])
           );
-      }
-      // .on('mouseover', (event, d: any) => {
-      //   // Show tooltip on hover
-      //   const tooltip = d3.select('figure#bar').append('div').attr('class', 'tooltip');
-      //   const [x, y] = d3.pointer(event);
-      //   tooltip.transition().duration(200).style('opacity', 0.9);
-      //   tooltip
-      //     .html(
-      //       `Year: ${year}<br/>Department: ${d.Department}<br/>Amount Spent: $${d[year].toLocaleString()}`
-      //     )
-      //     .style('left', x + 'px')
-      //     .style('top', y - 28 + 'px');
-      // })
-      // .on('mouseout', () => {
-      //   // Hide tooltip on mouseout
-      //   d3.select('.tooltip').remove(); // Remove the tooltip element
-      // });
-    );
+        })
+        .on('mousemove', (event: any) => {
+          const [mouseX, mouseY] = d3.pointer(event);
+          return this.tooltip
+            .style('top', mouseY + this.margin.top + 'px')
+            .style('left', mouseX + this.margin.left + 'px');
+        })
+        .on('mouseout', () => {
+          return this.tooltip.style('visibility', 'hidden');
+        });
+    });
+
     const legend = this.svg
       .selectAll('.legend')
       .data(data.map((d) => d.Department))
@@ -169,5 +179,4 @@ export class BarChartComponent implements OnInit {
       .attr('dy', '.35em')
       .text((d: any) => d);
   }
-  drawLegand() {}
 }

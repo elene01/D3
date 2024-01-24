@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common';
-import { Component, Input } from '@angular/core';
+import { Component } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import * as d3 from 'd3';
 import { dataType } from '../../../assets/models';
@@ -46,40 +46,36 @@ export class PieChartComponent {
     '2022',
   ];
   svg: any;
-  margin = 50;
-  width = 550;
-  height = 400;
+  margin = 40;
+  width = 500;
+  height = 320;
   totalNum = 0;
   radius = Math.min(this.width, this.height) / 2 - this.margin;
   colors: any;
   tooltip: any;
 
   createSvg(): void {
-    if (typeof document !== undefined) {
-      this.svg = d3
-        .select('figure#pie')
-        .append('svg')
-        .attr('width', this.width)
-        .attr('height', this.height)
-        .append('g')
-        .attr(
-          'transform',
-          'translate(' + this.width / 2 + ',' + this.height / 2 + ')'
-        );
-    }
+    this.svg = d3
+      .select('figure#pie')
+      .append('svg')
+      .attr('width', this.width)
+      .attr('height', this.height)
+      .append('g')
+      .attr(
+        'transform',
+        'translate(' + this.width / 2 + ',' + this.height / 2 + ')'
+      );
   }
   createTooltip() {
-    if (typeof document !== undefined) {
-      this.tooltip = d3
-        .select('body')
-        .append('div')
-        .style('position', 'absolute')
-        .style('z-index', '10')
-        .style('visibility', 'hidden')
-        .style('background', '#dbd8e3')
-        .style('padding', '10px')
-        .style('border-radius', '8px');
-    }
+    this.tooltip = d3
+      .select('body')
+      .append('div')
+      .style('position', 'absolute')
+      .style('z-index', '10')
+      .style('visibility', 'hidden')
+      .style('background', '#dbd8e3')
+      .style('padding', '10px')
+      .style('border-radius', '8px');
   }
   createColors(year: string): void {
     this.totalNum = 0;
@@ -108,7 +104,7 @@ export class PieChartComponent {
       .append('path')
       .transition()
       .duration(1000)
-      .attr('d', d3.arc().innerRadius(75).outerRadius(this.radius))
+      .attr('d', d3.arc().innerRadius(50).outerRadius(this.radius))
       .attr('fill', (d: any, i: any) => this.colors(i))
       .attr('stroke', 'white')
       .style('stroke-width', '2px')
@@ -134,14 +130,14 @@ export class PieChartComponent {
     //hover
     this.svg
       .on('mouseover', (d: any) => {
+        this.tooltip.style('visibility', 'visible');
         this.tooltip.html(
           'Year:' +
             year +
             '<br>' +
             d.toElement['__data__'].data.Department +
             '<br>' +
-            d.toElement['__data__'].data[year].toLocaleString('en-GB') +
-            '$' +
+            d3.format('($,')(d.toElement['__data__'].data[year]) +
             '<br>' +
             Math.round(
               (d.toElement['__data__'].data[year] / this.totalNum) * 100

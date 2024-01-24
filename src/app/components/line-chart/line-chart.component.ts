@@ -63,8 +63,8 @@ export class LineChartComponent {
     const values: number[] = Object.values(this.data[0]).slice(0, -1);
     d3.select('#lineChart').select('svg').remove();
     const margin = { top: 20, right: 20, bottom: 50, left: 170 };
-    const width = 600 - margin.left - margin.right;
-    const height = 400 - margin.top - margin.bottom;
+    const width = 500 - margin.left - margin.right;
+    const height = 300 - margin.top - margin.bottom;
     const svg = d3
       .select('#lineChart')
       .append('svg')
@@ -98,8 +98,7 @@ export class LineChartComponent {
           'Year: ' +
             year +
             '<br>' +
-            amount.toLocaleString() +
-            '$' +
+            d3.format('($,')(amount) +
             '<br>' +
             this.form.get('department')?.value
         );
