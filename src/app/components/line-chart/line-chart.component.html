@@ -1,0 +1,12 @@
+<form [formGroup]="form" class="form">
+  <div class="topPart">
+    <h2>U.S. Department spending from 2000-2022</h2>
+
+    <select formControlName="department">
+      <option *ngFor="let department of departmentNames" [value]="department">
+        {{ department }}
+      </option>
+    </select>
+  </div>
+  <div id="lineChart"></div>
+</form>

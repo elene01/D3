@@ -1,0 +1,20 @@
+<form [formGroup]="form" class="form">
+  <div class="topPart">
+    <h2>U.S. Department spending by year</h2>
+    <select formControlName="year">
+      <option *ngFor="let selectedYear of years" [value]="selectedYear">
+        {{ selectedYear }}
+      </option>
+    </select>
+  </div>
+  <figure id="pie"></figure>
+  <div
+    *ngFor="
+      let color of ['#FFC154', '#BD5645', '#47B39C', '#EC6B56'];
+      index as i
+    "
+  >
+    <div class="label" [style.background-color]="color"></div>
+    <p *ngIf="data[i].Department">{{ data[i].Department }}</p>
+  </div>
+</form>
