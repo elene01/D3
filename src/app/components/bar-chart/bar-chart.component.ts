@@ -138,11 +138,13 @@ export class BarChartComponent implements OnInit {
         .on('mouseover', (event: any, d: any) => {
           this.tooltip.style('visibility', 'visible');
           this.tooltip.html(
-            'Year:' +
+            'Year: ' +
               year +
               '<br>' +
+              'Department: ' +
               d.Department +
               '<br>' +
+              'Amount: ' +
               d3.format('($,')(d[year])
           );
         })

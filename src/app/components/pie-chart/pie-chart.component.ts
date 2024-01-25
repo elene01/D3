@@ -132,13 +132,16 @@ export class PieChartComponent {
       .on('mouseover', (d: any) => {
         this.tooltip.style('visibility', 'visible');
         this.tooltip.html(
-          'Year:' +
+          'Year: ' +
             year +
             '<br>' +
+            'Department: ' +
             d.toElement['__data__'].data.Department +
             '<br>' +
+            'Amount: ' +
             d3.format('($,')(d.toElement['__data__'].data[year]) +
             '<br>' +
+            'Percent: ' +
             Math.round(
               (d.toElement['__data__'].data[year] / this.totalNum) * 100
             ) +

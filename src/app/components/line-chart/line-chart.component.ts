@@ -88,7 +88,18 @@ export class LineChartComponent {
       .attr('d', (d) => line(values.map((value: any) => value)))
       .style('stroke', (d, i: any) => color(i))
       .style('stroke-width', '3px')
-      .style('fill', 'none')
+      .style('fill', 'none');
+
+    svg
+      .selectAll('.dot')
+      .data(Object.values(this.data[0]).slice(0, -1))
+      .enter()
+      .append('circle')
+      .attr('class', 'dot')
+      .attr('cx', (d: any, i: number) => x(2000 + i))
+      .attr('cy', (d: any) => y(d))
+      .attr('r', 4)
+      .style('fill', 'rgb(214, 39, 40)')
       .on('mouseover', (event, d: any) => {
         const [mouseX, mouseY] = d3.pointer(event);
         const year = Math.round(x.invert(mouseX));
@@ -98,8 +109,10 @@ export class LineChartComponent {
           'Year: ' +
             year +
             '<br>' +
+            'Amount: ' +
             d3.format('($,')(amount) +
             '<br>' +
+            'Department: ' +
             this.form.get('department')?.value
         );
       })
